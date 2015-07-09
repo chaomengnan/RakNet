@@ -1034,6 +1034,35 @@ ConnectionAttemptResult RakPeer::ConnectWithSocket(const char* host, unsigned sh
 
 }
 
+#ifdef _WIN32
+
+int GetThreadCount()
+{
+	int nCount = 0;
+	HANDLE hSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, ::GetCurrentProcessId());
+	if (!hSnap)
+	{
+		return -1;
+	}
+
+	DWORD dwProcessId = ::GetCurrentProcessId();
+	THREADENTRY32 te = { sizeof(THREADENTRY32) };
+	if (::Thread32First(hSnap, &te))
+	{
+		do{
+			if (te.th32OwnerProcessID == dwProcessId)
+			{
+				nCount++;
+			}
+		} while (::Thread32Next(hSnap, &te));
+	}
+
+	::CloseHandle(hSnap);
+
+	return nCount;
+}
+#endif
+
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Description:
 // Stops the network threads and close all connections.  Multiple calls are ok.
@@ -1123,6 +1152,16 @@ void RakPeer::Shutdown( unsigned int blockDuration, unsigned char orderingChanne
 	while ( isMainLoopThreadActive )
 	{
 		endThreads = true;
+		
+#ifdef _WIN32
+		int nCount = GetThreadCount();
+		if (nCount <= 1)
+		{
+			isMainLoopThreadActive = false;
+			break;
+		}
+#endif
+		
 		RakSleep(15);
 	}
 
