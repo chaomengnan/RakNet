@@ -20,7 +20,7 @@
 #include "RakNetTypes.h"
 
 #ifdef _WIN32
-
+#include <TlHelp32.h>
 #else
 #include <unistd.h>
 #endif
