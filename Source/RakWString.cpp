@@ -103,7 +103,7 @@ RakWString& RakWString::operator = ( const char * const str )
 	Clear();
 
 // Not supported on android
-#if !defined(ANDROID)
+#if !defined(__ANDROID__)
 	if (str==0)
 		return *this;
 	if (str[0]==0)
