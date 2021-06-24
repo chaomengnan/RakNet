@@ -128,7 +128,8 @@ void Thread::AbortThread()
 
 #else
 
-	pthread_cancel(_thread);
+	//pthread_cancel(_thread);
+	pthread_kill(_thread, SIGUSR1);
 
 #endif
 
